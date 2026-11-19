@@ -161,13 +161,30 @@ function realBox() {
 
 const layoutCache = new Map();
 
+// ключ раскладки — по позиции прокрутки (шаг 1/600)
+function layoutKey(p) { return Math.round(Math.min(1, Math.max(0, p)) * 600); }
+
+// сохранить результат в кэш
+function saveLayout(key) {
+  layoutCache.set(key, {
+    x: rig.position.x, y: rig.position.y, z: rig.position.z,
+    s: rig.scale.x, rx: rig.rotation.x, ry: rig.rotation.y, rz: rig.rotation.z
+  });
+  rig.userData.baseY = rig.position.y;
+}
+
 function placePhone(prog = 0) {
   // одинаковая позиция прокрутки всегда даёт одинаковый результат
-  const key = Math.round(scrollP * 300);
+  const key = layoutKey(scrollP);
   const cached = layoutCache.get(key);
   if (cached) {
     rig.position.set(cached.x, cached.y, cached.z);
     rig.scale.setScalar(cached.s);
+    if (cached.rx !== undefined) {
+      rig.rotation.x = cached.rx;
+      rig.rotation.y = cached.ry;
+      rig.rotation.z = cached.rz;
+    }
     rig.updateMatrixWorld(true);
     rig.userData.baseY = cached.y;
     return;
@@ -208,6 +225,18 @@ function placePhone(prog = 0) {
                            maxH * vertBoost, narrowCap * (1 + 0.15 * (typeof openProg === "number" ? openProg : 0)));
 
   camera.updateMatrixWorld(true);
+
+  // повороты задаём здесь — иначе раскладка считается по другой позе
+  {
+    const mob = VW < 900;
+    const lerp = (a, b, k) => a + (b - a) * k;
+    rig.rotation.y = mob ? (0.34 - 0.12 * scrollP) : lerp(0.46, 0.12, scrollP);
+    rig.rotation.x = mob ? (0.30 - 0.12 * scrollP) : lerp(0.34, 0.10, scrollP);
+    rig.rotation.z = (mob ? lerp(0.12, 0.03, scrollP) : lerp(0.10, 0.00, scrollP))
+                     - Math.PI / 2 * (typeof openProg === "number" ? openProg : 0);
+  }
+
+  // ВСЕГДА от статичной базы — иначе результат зависит от предыдущего кадра
   rig.position.set(base.x, base.y, -1.30);
   rig.scale.setScalar(modelRef.userData.baseScale);
 
@@ -295,8 +324,7 @@ function placePhone(prog = 0) {
     }
     rig.updateMatrixWorld(true);
 
-    layoutCache.set(key, { x: rig.position.x, y: rig.position.y, z: rig.position.z, s: rig.scale.x });
-    rig.userData.baseY = rig.position.y;
+    saveLayout(key);
     return;
   }
 
@@ -344,9 +372,7 @@ function placePhone(prog = 0) {
     rig.position.y -= dy / (vh / visibleH);
   }
 
-  layoutCache.set(key, { x: rig.position.x, y: rig.position.y, z: rig.position.z, s: rig.scale.x });
-  rig.userData.baseY = rig.position.y;
-
+  saveLayout(key);
 }
 
 function visibleWidthAt(obj) {
@@ -1245,17 +1271,8 @@ function animate(now) {
     const baseX = mobNow ? lerp(0.10, 0.04, scrollP) : lerp(0.34, 0.10, scrollP);
     const baseZ = mobNow ? lerp(0.12, 0.03, scrollP) : lerp(0.10, 0.00, scrollP);
 
-    const mobNow2 = window.innerWidth < 900;
-    rig.rotation.y = mobNow2 ? (0.34 - 0.12 * scrollP) : (baseY + curX * 0.10);
-    rig.rotation.x = mobNow2 ? (0.30 - 0.12 * scrollP) : (baseX + curY * 0.06);
-
-    const wobble = mobNow2 ? 0 : 1;   // на телефоне без «дыхания»
-    rig.rotation.z = baseZ + Math.sin(t * 0.28) * 0.01 * wobble
-                      + (-Math.PI / 2 * (typeof openProg === "number" ? openProg : 0));
-    // «дыхание» по высоте — только на десктопе, иначе ломает мобильную раскладку
-    if (rig.userData.baseY !== undefined && wobble) {
-      rig.position.y = rig.userData.baseY + Math.sin(t * 0.5) * 0.025;
-    }
+    // положение и поза телефона задаются ТОЛЬКО в placePhone —
+    // любые добавки здесь «перемешивают» кадры и дают скачки
   }
 
   renderer.render(scene, camera);
