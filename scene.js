@@ -719,37 +719,6 @@ function buildResumePage() {
 
   let y = 116;
 
-  // шапка
-  x.fillStyle = INK;
-  x.font = "700 32px Manrope, sans-serif";
-  x.fillText("HR · ПОДБОР", L, y + 34);
-
-  x.fillStyle = MUTE;
-  x.font = SRC;
-  x.fillText("СИСТЕМЫ НАЙМА · ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ", L + 240, y + 34);
-
-
-  x.fillRect(L, y + 56, R - L, 2);
-  y += 132;
-
-  // ОПЫТ РАБОТЫ
-  x.fillStyle = INK;
-  x.font = H1;
-  x.fillText("ОПЫТ РАБОТЫ", L, y);
-  x.fillStyle = MUTE;
-  x.font = SRC;
-  x.textAlign = "right";
-  x.fillText("01 / 2021—2026", R, y - 6);
-  x.textAlign = "left";
-  y += 62;
-
-  const jobs = [
-    ["2024 — наст. время", "РУКОВОДИТЕЛЬ ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "Контур"],
-    ["2023 — 2024", "РЕГИОНАЛЬНЫЙ РУКОВОДИТЕЛЬ ПО ПОДБОРУ ПЕРСОНАЛА", "Озон · Урал, Сибирь и Дальний Восток, СНГ"],
-    ["2022 — 2023", "НАЧАЛЬНИК ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "МТС"],
-    ["2021 — 2022", "РУКОВОДИТЕЛЬ ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "Контур"]
-  ];
-
   const wrap = (ctx, text, maxW) => {
     const words = text.split(" ");
     const lines = [];
@@ -762,6 +731,39 @@ function buildResumePage() {
     if (cur) lines.push(cur);
     return lines;
   };
+
+  // шапка
+  x.fillStyle = INK;
+  x.font = "700 32px Manrope, sans-serif";
+  x.fillText("HR · ПОДБОР", L, y + 34);
+
+  // строка раздела — переносится по ширине листа
+  x.fillStyle = MUTE;
+  x.font = "600 21px Manrope, sans-serif";
+  const subLines = wrap(x, "СИСТЕМА ПОДБОРА ПЕРСОНАЛА · ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ", R - (L + 250));
+  if (subLines.length <= 1) {
+    x.fillText(subLines[0] || "", L + 250, y + 34);
+  } else {
+    x.fillText(subLines[0], L + 250, y + 22);
+    x.fillText(subLines[1], L + 250, y + 48);
+  }
+
+
+  x.fillRect(L, y + 56, R - L, 2);
+  y += 132;
+
+  // ОПЫТ РАБОТЫ
+  x.fillStyle = INK;
+  x.font = H1;
+  x.fillText("ОПЫТ РАБОТЫ", L, y);
+  y += 62;
+
+  const jobs = [
+    ["2024 — наст. время", "РУКОВОДИТЕЛЬ ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "Контур"],
+    ["2023 — 2024", "РЕГИОНАЛЬНЫЙ РУКОВОДИТЕЛЬ ПО ПОДБОРУ ПЕРСОНАЛА", "Озон · Урал, Сибирь и Дальний Восток, СНГ"],
+    ["2022 — 2023", "НАЧАЛЬНИК ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "МТС"],
+    ["2021 — 2022", "РУКОВОДИТЕЛЬ ОТДЕЛА ПОДБОРА ПЕРСОНАЛА", "Контур"]
+  ];
 
   x.strokeStyle = "rgba(29,26,23,.25)";
   x.lineWidth = 1.5;
@@ -1018,7 +1020,7 @@ function buildResumePage() {
 
   x.font = "700 60px Manrope, sans-serif";
   x.textAlign = "center";
-  x.fillText("НУЖНА СИСТЕМА НАЙМА?", L + (R - L) / 2, blockTop + 152);
+  x.fillText("НУЖНА КОНСУЛЬТАЦИЯ?", L + (R - L) / 2, blockTop + 152);
   x.textAlign = "left";
 
 
