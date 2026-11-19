@@ -740,7 +740,8 @@ function buildResumePage() {
   // строка раздела — переносится по ширине листа
   x.fillStyle = MUTE;
   x.font = "600 21px Manrope, sans-serif";
-  const subLines = wrap(x, "СИСТЕМА ПОДБОРА ПЕРСОНАЛА · ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ", R - (L + 250));
+  // перенос обязательно после «СИСТЕМА ПОДБОРА ПЕРСОНАЛА»
+  const subLines = ["СИСТЕМА ПОДБОРА ПЕРСОНАЛА", "ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ"];
   if (subLines.length <= 1) {
     x.fillText(subLines[0] || "", L + 250, y + 34);
   } else {
