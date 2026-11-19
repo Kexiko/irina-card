@@ -216,10 +216,10 @@ function placePhone(prog = 0) {
   const narrowScreen = vw < 900;
   // на телефоне держим телефон в левой части кадра, иначе его закрывает фигура
   // на телефоне в начале держим его компактно слева, к раскрытию — даём вырасти
-  const narrowW = vw * (0.96 + 0.04 * prog) * (1 + 0.08 * (typeof openProg === "number" ? openProg : 0));
+  const narrowW = vw * (0.88 + 0.06 * prog) * (1 + 0.08 * (typeof openProg === "number" ? openProg : 0));
   const narrowCap = narrowScreen ? narrowW / PHONE_ASPECT : Infinity;
   // к концу прокрутки телефон встаёт по центру экрана
-  const narrowCx  = 0.40 - 0.01 * prog;   // к концу — по центру
+  const narrowCx  = 0.35 + 0.03 * prog;   // к концу — по центру
   const vertBoost = 1 + 1.05 * (typeof openProg === "number" ? openProg : 0);
   const targetH = Math.min(pr.height * 0.74 * STAGE.phoneOfPerson * grow * vertBoost,
                            maxH * vertBoost, narrowCap * (1 + 0.15 * (typeof openProg === "number" ? openProg : 0)));
