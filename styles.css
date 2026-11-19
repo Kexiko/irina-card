@@ -1,0 +1,283 @@
+/* ============================================================
+   ПЕРВЫЙ ЭКРАН — бежевая палитра, персона + 3D-телефон
+   ============================================================ */
+
+:root {
+  --sand-50:  #faf6ef;
+  --sand-100: #f4ecdf;
+  --sand-200: #ece0cd;
+  --sand-300: #ddcbb0;
+  --camel:    #b08d62;
+  --camel-dp: #8f6f48;
+  --ink:      #2b2722;
+  --ink-soft: #575047;
+  --ink-mute: #8a8073;
+
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--sans);
+  background: var(--sand-100);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+
+/* ============================================================
+   Сцена
+   ============================================================ */
+/* Высота истории: прокрутка внутри неё управляет шагом 1 */
+.hero {
+  position: relative;
+  height: 430svh;   /* шаг 1: фото меньше / телефон крупнее; шаг 2: раскрытие */
+  /* фон отличается от экрана телефона: он заметно темнее и с градиентом */
+  background:
+    radial-gradient(120% 80% at 72% 12%, #efe4d2 0%, #e9dcc6 38%, #dfcfb4 72%, #d3bf9f 100%);
+}
+
+/* Липкая сцена: всё держится на месте, меняются только слои */
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+/* --- 3D-слой --- */
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.scene canvas { display: block; }
+
+.scene-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+/* --- Подложка: тёплые блики и зерно --- */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.bd-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+.bd-glow-a {
+  width: 60vw; height: 60vw;
+  right: -10vw; top: -20vw;
+  background: radial-gradient(circle, rgba(201,176,141,.55), rgba(250,246,239,0) 65%);
+}
+.bd-glow-b {
+  width: 45vw; height: 45vw;
+  left: 30vw; bottom: -18vw;
+  background: radial-gradient(circle, rgba(221,203,176,.6), rgba(250,246,239,0) 70%);
+}
+.bd-grain {
+  position: absolute; inset: 0;
+  opacity: .22;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Персона — передний план
+   ============================================================ */
+.person {
+  position: absolute;
+  z-index: 3;
+  /* как в примере: фигура крупная, центр-правее, во всю высоту */
+  left: 64%;
+  translate: -50% 0;
+  bottom: -5vh;
+  height: 99vh;
+  transform-origin: 50% 100%;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+  will-change: transform;
+}
+.person-img {
+  height: 100%;
+  /* max-width:none — иначе картинка сжимается по ширине контейнера
+     и внутри рамки появляется пустота сверху (фигура «мельчает») */
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom;
+  /* мягкая тень по контуру, чтобы фигура «стояла» в сцене */
+  filter:
+    drop-shadow(0 26px 34px rgba(60, 46, 30, .18))
+    drop-shadow(0 4px 10px rgba(60, 46, 30, .10));
+}
+/* тёплый отблеск-подтёк под фигурой */
+.person::after {
+  content: "";
+  position: absolute;
+  left: 6%; right: 6%; bottom: -1vh;
+  height: 9vh;
+  background: radial-gradient(ellipse at 50% 50%, rgba(120, 95, 62, .20), rgba(120, 95, 62, 0) 70%);
+  filter: blur(10px);
+  z-index: -1;
+}
+
+/* ============================================================
+   Текст первый экран
+   ============================================================ */
+.hero-copy {
+  position: absolute;
+  z-index: 4;
+  left: 7vw;
+  top: 50%;
+  translate: 0 -48%;
+  max-width: 28vw;
+  min-width: 290px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--camel-dp);
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.hero-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(44px, 5.4vw, 76px);
+  line-height: .92;
+  letter-spacing: -.015em;
+  margin-bottom: 26px;
+}
+.hero-lede {
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.7;
+  color: var(--ink-soft);
+  max-width: 34ch;
+  margin-bottom: 34px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease);
+}
+.btn-dark {
+  background: var(--ink);
+  color: var(--sand-50);
+  border: 1px solid var(--ink);
+}
+.btn-dark:hover { background: var(--camel-dp); border-color: var(--camel-dp); }
+.btn-ghost {
+  border: 1px solid rgba(43,39,34,.28);
+  color: var(--ink);
+}
+.btn-ghost:hover { border-color: var(--ink); }
+
+/* ============================================================
+   Шапка и подсказка
+   ============================================================ */
+.topbar {
+  position: absolute;
+  z-index: 5;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 7vw;
+  pointer-events: none;
+}
+.topbar > * { pointer-events: auto; }
+.brand {
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: .02em;
+}
+.nav a {
+  font-size: 11.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color .3s var(--ease);
+}
+.nav a:hover { color: var(--ink); }
+
+.scroll-hint {
+  position: absolute;
+  z-index: 5;
+  left: 7vw;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.scroll-line {
+  width: 1px; height: 42px;
+  background: linear-gradient(180deg, var(--ink-mute), transparent);
+  animation: hintDrop 1.8s var(--ease) infinite;
+}
+@keyframes hintDrop {
+  0%   { transform: scaleY(.15); transform-origin: top; opacity: 0; }
+  45%  { transform: scaleY(1);   transform-origin: top; opacity: 1; }
+  100% { transform: scaleY(1);   transform-origin: top; opacity: 0; }
+}
+
+.placeholder { min-height: 1px; }
+
+/* ============================================================
+   Адаптив
+   ============================================================ */
+@media (max-width: 1024px) {
+  .person { left: 58%; height: 88vh; bottom: -5vh; }
+}
+
+@media (max-width: 768px) {
+  /* высоту .hero не трогаем: она задаёт длину прокрутки для шага 1 */
+  .topbar { padding: 20px 24px; }
+  .person {
+    /* на телефоне фигура крупнее и правее — текст на экране остаётся читаемым */
+    left: 84%;
+    translate: -50% 0;
+    height: 74vh;
+    bottom: -4vh;
+  }
+  .scroll-hint { left: 20px; bottom: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-line { animation: none; }
+}
+
+.screen-links { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+.screen-links a { position: absolute; pointer-events: auto; border-radius: 6px;
+  background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }

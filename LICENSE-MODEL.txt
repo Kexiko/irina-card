@@ -1,0 +1,8 @@
+3D-модель: iPhone Duo Rig
+Автор: zhe_kan (Sketchfab)
+Лицензия: CC-BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike 4.0 International)
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Файл: model2/iPhone_Duo_Rig.glb
+Использование: личный некоммерческий сайт-визитка.
+При распространении модели сохраняйте указание автора и лицензии.

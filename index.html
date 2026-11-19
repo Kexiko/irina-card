@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>Шашкова Ирина</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=279">
+
+<!-- Three.js -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ============================================================
+     ПЕРВЫЙ ЭКРАН + ШАГ 1 ПРОКРУТКИ
+     0%    — фото крупно, телефон за ним
+     100%  — фото уменьшилось, телефон вырос по центру (читать и нажимать)
+     Текст-заглушки ищи по слову «ЗАГЛУШКА».
+     ============================================================ -->
+
+<main class="hero" id="hero">
+  <div class="stage">
+
+    <!-- 3D-сцена: телефон -->
+    <div class="scene" id="scene">
+      <div class="scene-fallback" id="sceneFallback" aria-hidden="true"></div>
+    </div>
+
+    <!-- Мягкая подложка/свет -->
+    <div class="backdrop" aria-hidden="true">
+      <div class="bd-glow bd-glow-a"></div>
+      <div class="bd-glow bd-glow-b"></div>
+      <div class="bd-grain"></div>
+    </div>
+
+    <!-- Персона на переднем плане -->
+    <div class="person" id="person">
+      <img class="person-img" src="assets/portrait-cut.png" alt="Шашкова Ирина">
+    </div>
+
+    <!-- Шапка -->
+    <header class="topbar">
+      <span class="brand">Шашкова Ирина</span>
+      <nav class="nav">
+        <a href="#contacts">Контакты</a>
+      </nav>
+    </header>
+
+  </div>
+</main>
+
+<!-- Заглушки для якорей, чтобы страница не «прыгала» -->
+<section id="about" class="placeholder"></section>
+<section id="contacts" class="placeholder"></section>
+
+<script type="module" src="scene.js?v=279"></script>
+</body>
+</html>
