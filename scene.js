@@ -445,6 +445,8 @@ function readScroll() {
   stepP   = Math.min(1, scrollP / STEP1_END);
   unfoldP = Math.min(1, Math.max(0, (scrollP - STEP1_END) / (UNFOLD_END - STEP1_END)));
   resumeP = Math.min(1, Math.max(0, (scrollP - SCROLL_START) / (0.97 - SCROLL_START)));
+
+  _rawP = scrollP;   // «сырая» позиция — нужна для стоп-точек
 }
 
 function applyScroll() {
@@ -478,15 +480,85 @@ function applyScroll() {
 
 
 }
-window.addEventListener("scroll", applyScroll, { passive: true });
+/* ---------- защита от проскока: прилипание на раскрытом телефоне ---------- */
+// первое листание останавливается на развёрнутом телефоне (опыт работы видно),
+// и только после паузы прокрутка идёт дальше
+const SNAP_P = UNFOLD_END + 0.03;   // точка «телефон раскрыт»
+const SNAP_ARM_P = 0.18;            // с этой позиции довод взводится
+const SNAP_RELEASE_P = SNAP_P + 0.10;
+
+let _rawP = 0;
+let armed = true;      // довод готов сработать
+let snapping = false;  // идёт довод/удержание
+let snapDone = false;  // уже прилипали в этот заход
+let releaseRaf = 0;
+let releaseTimer = 0;
+let resumed = false;   // после прилипания пользователь продолжил
+
+function armOnTop() {
+  if (_rawP < 0.02) { armed = true; snapDone = false; }
+}
+
+function maybeSnap() {
+  if (!ready || !heroEl) return;
+  if (_rawP >= SNAP_ARM_P) armOnTop();   // не мешает взводу выше
+
+  if (snapDone || snapping) {
+    // после прилипания: человека «отпускает», как только он листает дальше
+    if (snapDone && !snapping && _rawP > SNAP_RELEASE_P && !resumed) {
+      resumed = true;
+      armed = false;
+    }
+    return;
+  }
+
+  // началось раскрытие — значит листают осознанно: доводим до полного раскрытия
+  if (armed && _rawP >= SNAP_ARM_P) {
+    armed = false;
+    snapping = true;
+    const total = heroEl.offsetHeight - VH;
+    smoothScrollTo(total * SNAP_P, 620, () => {
+      snapping = false;
+      snapDone = true;
+      resumed = false;
+      startHold(total * SNAP_P);
+    });
+  }
+}
+
+// удержание: пока не пройдёт пауза или человек не потянет дальше
+function startHold(targetY) {
+  cancelAnimationFrame(releaseRaf);
+  clearTimeout(releaseTimer);
+  const t0 = performance.now();
+
+  releaseTimer = setTimeout(() => { snapping = false; }, 900);
+
+  const tick = () => {
+    if (performance.now() - t0 > 1000) return;        // максимум 1 секунда
+    const diff = targetY - window.scrollY;
+    if (diff < -40) return;                            // тянут дальше — отпускаем
+    if (Math.abs(diff) > 3) {
+      window.scrollTo(0, window.scrollY + diff * 0.25);
+    }
+    releaseRaf = requestAnimationFrame(tick);
+  };
+  releaseRaf = requestAnimationFrame(tick);
+}
+
+window.addEventListener("scroll", () => {
+  applyScroll();
+  armOnTop();
+  maybeSnap();
+}, { passive: true });
 
 /* ---------- плавная прокрутка к позиции ---------- */
-function smoothScrollTo(target) {
+function smoothScrollTo(target, durOverride, done) {
   const from = window.scrollY;
   const dist = target - from;
   if (Math.abs(dist) < 6) return;
 
-  const dur = Math.min(2200, Math.max(700, Math.abs(dist) * 0.9));
+  const dur = durOverride || Math.min(2200, Math.max(700, Math.abs(dist) * 0.9));
   const t0 = performance.now();
 
   const step = (now) => {
@@ -494,6 +566,7 @@ function smoothScrollTo(target) {
     const e2 = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     window.scrollTo(0, from + dist * e2);
     if (t < 1) requestAnimationFrame(step);
+    else if (done) done();
   };
   requestAnimationFrame(step);
 }
@@ -732,23 +805,17 @@ function buildResumePage() {
     return lines;
   };
 
-  // шапка
+  // шапка листа: две строки, обе по левому краю (без «HR · ПОДБОР»)
+  x.textAlign = "left";
   x.fillStyle = INK;
-  x.font = "700 32px Manrope, sans-serif";
-  x.fillText("HR · ПОДБОР", L, y + 34);
+  x.font = "700 26px Manrope, sans-serif";
+  const line1 = "СИСТЕМА ПОДБОРА ПЕРСОНАЛА";
+  x.fillText(line1, L, y + 24);
 
-  // строка раздела — переносится по ширине листа
   x.fillStyle = MUTE;
   x.font = "600 21px Manrope, sans-serif";
-  // перенос обязательно после «СИСТЕМА ПОДБОРА ПЕРСОНАЛА»
-  const subLines = ["СИСТЕМА ПОДБОРА ПЕРСОНАЛА", "ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ"];
-  if (subLines.length <= 1) {
-    x.fillText(subLines[0] || "", L + 250, y + 34);
-  } else {
-    x.fillText(subLines[0], L + 250, y + 22);
-    x.fillText(subLines[1], L + 250, y + 48);
-  }
-
+  const line2 = "ОТ АУДИТА ДО МАСШТАБИРОВАНИЯ";
+  x.fillText(line2, L, y + 52);
 
   x.fillRect(L, y + 56, R - L, 2);
   y += 132;
